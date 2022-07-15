@@ -62,12 +62,24 @@ const regex = /^[0-9]{14}$/;
 
 // comandos
 bot.command('help', async (ctx) => {
-  ctx.reply('📝 Comandos: \n\n digite o código apenas \n\n 012345678901234');
+  ctx.reply(`
+📝 Comandos:
+\n digite o código apenas ex: 012345678901234
+\n /help para ver os comandos
+\n /resumo *código* para ver o resumo da ultima movimentação
+`);
 });
 
-bot.start((ctx) => ctx.reply('Welcome'));
+bot.start((ctx) =>
+  ctx.reply(`
+🤖 Olá, eu sou o rastreador não oficial para a Jadlog\n
+digite o código apenas ex: 012345678901234\n
+ou use o comando /resumo + *código* para ver o resumo da ultima movimentação
+  `),
+);
 bot.help((ctx) => ctx.reply('Send me a sticker'));
-bot.hears('hi', (ctx) => ctx.reply('Hey there'));
+
+// comando sem código
 bot.hears(regex, (ctx) => {
   const id = ctx.message.text;
   ctx.reply(`Aguarde um momento...`);
@@ -78,6 +90,20 @@ bot.hears(regex, (ctx) => {
           ctx.reply(`${item}`);
         }, 1000 * i);
       });
+    })
+    .catch((error) => {
+      ctx.reply(`${error}`);
+    });
+});
+
+// comando com o código
+bot.command('resumo', async (ctx) => {
+  const id = ctx.message.text.split(' ')[1];
+  ctx.reply(`Aguarde um momento...`);
+  ctx.reply(`Esta foi a última movimentação:`);
+  rastreador(id)
+    .then((response) => {
+      ctx.reply(`${response[response.length - 1]}`);
     })
     .catch((error) => {
       ctx.reply(`${error}`);
